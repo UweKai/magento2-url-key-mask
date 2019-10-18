@@ -69,16 +69,21 @@ class ProductUrlPathGenerator extends \Magento\CatalogUrlRewrite\Model\ProductUr
 
         preg_match_all('/\{\{([a-zA-Z1-9]*)\}\}/', $token, $preg_output);
 
+    /**
+    * Very dirty fix to make the use of drop-down attributes (e.g. brand or manufacturer) possible
+    */
         for($i = 0; $i < count($preg_output[1]); $i++)
         {
             $value = $product->getData($preg_output[1][$i]);
-            if(is_null($value))
+            if(is_numeric($value))
             {
+            	$value = $product->getAttributeText($preg_output[1][$i]);
+            	if(is_null($value))
+            	{
                 $value = '';
-            }
+                }
+          }
 
-            $result = str_replace($preg_output[0][$i], $value, $result);
-        }
 
         return $product->formatUrlKey($result);
     }
